@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.tomlj.TomlArray;
 import studio.thevipershow.safechat.SafeChat;
+import studio.thevipershow.safechat.api.checks.CheckPermission;
 import studio.thevipershow.safechat.api.checks.CheckPriority;
-import studio.thevipershow.safechat.chat.SafeChatUtils;
+import studio.thevipershow.safechat.SafeChatUtils;
 import studio.thevipershow.safechat.api.checks.ChatCheck;
 import studio.thevipershow.safechat.api.checks.ChatData;
 import studio.thevipershow.safechat.api.checks.CheckName;
@@ -20,6 +21,7 @@ import studio.thevipershow.safechat.config.messages.MessagesConfig;
 import studio.thevipershow.safechat.config.messages.MessagesSection;
 
 @CheckName(name = "Flood")
+@CheckPermission(permission = "safechat.bypass.flood")
 @CheckPriority(priority = CheckPriority.Priority.HIGH)
 public final class FloodCheck extends ChatCheck {
 
@@ -30,8 +32,8 @@ public final class FloodCheck extends ChatCheck {
     private final MessagesConfig messagesConfig;
 
     public FloodCheck(@NotNull CheckConfig checkConfig, @NotNull MessagesConfig messagesConfig) {
-        this.checkConfig = checkConfig;
-        this.messagesConfig = messagesConfig;
+        this.checkConfig = Objects.requireNonNull(checkConfig);
+        this.messagesConfig = Objects.requireNonNull(messagesConfig);
     }
 
     @Override
@@ -42,7 +44,7 @@ public final class FloodCheck extends ChatCheck {
         }
 
         UUID uuid = data.getPlayer().getUniqueId();
-        double delaySeconds = Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.FLOOD_REQUIRED_DELAY));
+        double delaySeconds = ((Number) Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.FLOOD_REQUIRED_DELAY))).doubleValue();
 
         if (lastWriteMap.containsKey(uuid)) {
 

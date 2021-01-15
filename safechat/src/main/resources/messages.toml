@@ -1,3 +1,8 @@
+# Messages for all of the default checks
+# available placeholder:
+# {PREFIX} -> The prefix of this plugin (SafeChat)
+# {PLAYER} -> The name of the player who failed the check.
+# {TIME} -> missing time to write again (ONLY WORKS FOR CHAT FLOOD!)
 [messages]
 address-warning = [
   "{PREFIX} &7You have sent a forbidden address in chat.",
@@ -17,4 +22,9 @@ text-repetition-warning = [
 chat-flood-warning = [
   "{PREFIX} &7You have been sending messages too fast.",
   "&7Please &e{PLAYER}&7, wait &f{TIME} &7to write again!"
+]
+
+caps-warning = [
+  "{PREFIX} &7You have been using too many uppercase characters.",
+  "&7Please &e{PLAYER}&7, remove your caps lock!"
 ]

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.hibernate.cfg.Environment;
+import org.hibernate.dialect.DB2400Dialect;
+import org.hibernate.dialect.DB2400V7R3Dialect;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.HSQLDialect;
@@ -13,6 +15,7 @@ import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.dialect.SQLServer2012Dialect;
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 import org.jetbrains.annotations.NotNull;
+import org.sqlite.hibernate.dialect.SQLiteDialect;
 import studio.thevipershow.safechat.config.database.DatabaseConfig;
 import studio.thevipershow.safechat.config.database.DatabaseSection;
 
@@ -44,7 +47,15 @@ public enum HibernateSQLMapping {
     /**
      * Microsoft's SQLServer type.
      */
-    SQLSERVER("sqlserver", "studio.thevipershow.safechat.libs.microsoft.sqlserver.jdbc.SQLServerDriver", generateUrl("sqlserver"), SQLServer2012Dialect.class, false);
+    SQLSERVER("sqlserver", "studio.thevipershow.safechat.libs.microsoft.sqlserver.jdbc.SQLServerDriver", generateUrl("sqlserver"), SQLServer2012Dialect.class, false),
+    /**
+     * IBM DB2 Server type.
+     */
+    DB2("db2", "studio.thevipershow.safechat.libs.com.ibm.db2.jcc.DB2Driver", generateFileUrl("db2"), DB2400V7R3Dialect.class, false),
+    /**
+     * SQLite (TESTING)
+     */
+    SQLITE("sqlite", "org.sqlite.JDBC", generateFileUrl("sqlite"), SQLiteDialect.class, true);
 
     private final String sqlFlavour;
     private final String driverClassName;
@@ -70,8 +81,10 @@ public enum HibernateSQLMapping {
         Map<String, String> properties = new HashMap<>();
         properties.put("hibernate.connection.dataSourceClassname", HikariCPConnectionProvider.class.getName());
         properties.put("hibernate.hikari.jdbcUrl", generateAppropriateUrl(this, dbConfig));
-        properties.put("hibernate.hikari.username", dbConfig.getConfigValue(DatabaseSection.USERNAME));
-        properties.put("hibernate.hikari.password", dbConfig.getConfigValue(DatabaseSection.PASSWORD));
+        if (!isFileBased()) { // do not use accounts in file-based databases
+            properties.put("hibernate.hikari.username", dbConfig.getConfigValue(DatabaseSection.USERNAME));
+            properties.put("hibernate.hikari.password", dbConfig.getConfigValue(DatabaseSection.PASSWORD));
+        }
         properties.put("hibernate.dataSourceClassName", HikariDataSource.class.getName());
         properties.put(Environment.DRIVER, driverClassName);
         // Optimizations:

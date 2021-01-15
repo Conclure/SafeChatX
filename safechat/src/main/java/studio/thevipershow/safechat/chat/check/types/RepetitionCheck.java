@@ -9,17 +9,19 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.tomlj.TomlArray;
 import studio.thevipershow.safechat.SafeChat;
-import studio.thevipershow.safechat.api.checks.CheckPriority;
-import studio.thevipershow.safechat.chat.SafeChatUtils;
+import studio.thevipershow.safechat.SafeChatUtils;
+import studio.thevipershow.safechat.api.checks.ChatCheck;
 import studio.thevipershow.safechat.api.checks.ChatData;
 import studio.thevipershow.safechat.api.checks.CheckName;
-import studio.thevipershow.safechat.api.checks.ChatCheck;
+import studio.thevipershow.safechat.api.checks.CheckPermission;
+import studio.thevipershow.safechat.api.checks.CheckPriority;
 import studio.thevipershow.safechat.config.checks.CheckConfig;
 import studio.thevipershow.safechat.config.checks.CheckSections;
 import studio.thevipershow.safechat.config.messages.MessagesConfig;
 import studio.thevipershow.safechat.config.messages.MessagesSection;
 
 @CheckName(name = "RepetitionCheck")
+@CheckPermission(permission = "safechat.bypass.repetition")
 @CheckPriority(priority = CheckPriority.Priority.HIGH)
 public final class RepetitionCheck extends ChatCheck {
 
@@ -29,8 +31,8 @@ public final class RepetitionCheck extends ChatCheck {
     private final MessagesConfig messagesConfig;
 
     public RepetitionCheck(@NotNull CheckConfig checkConfig, @NotNull MessagesConfig messagesConfig) {
-        this.checkConfig = checkConfig;
-        this.messagesConfig = messagesConfig;
+        this.checkConfig = Objects.requireNonNull(checkConfig);
+        this.messagesConfig = Objects.requireNonNull(messagesConfig);
     }
 
     @Override
@@ -47,7 +49,7 @@ public final class RepetitionCheck extends ChatCheck {
             boolean allowSimilarity = Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.REPETITION_ALLOW_SIMILARITY));
             if (!allowSimilarity) {
                 double compare = ratcliffObershelp.similarity(lastMessage, message);
-                double factor = Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.REPETITION_MAXIMUM_SIMILARITY));
+                double factor = ((Number) Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.REPETITION_MAXIMUM_SIMILARITY))).doubleValue();
                 if (compare >= factor) {
                     return true;
                 } else {
