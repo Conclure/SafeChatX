@@ -2,10 +2,10 @@ package studio.thevipershow.safechat.chat.check.types;
 
 import info.debatty.java.stringsimilarity.RatcliffObershelp;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.tomlj.TomlArray;
-import org.tomlj.TomlParseResult;
 import studio.thevipershow.safechat.SafeChat;
 import studio.thevipershow.safechat.api.checks.CheckPermission;
 import studio.thevipershow.safechat.api.checks.CheckPriority;
@@ -28,7 +28,7 @@ import studio.thevipershow.safechat.config.messages.MessagesSection;
 @CheckPriority(priority = CheckPriority.Priority.LOW)
 public final class WordsBlacklistCheck extends ChatCheck {
 
-    private final RatcliffObershelp ratcliffObershelp = new RatcliffObershelp();
+    private final info.debatty.java.stringsimilarity.RatcliffObershelp algo = new RatcliffObershelp();
     private final BlacklistConfig blacklistConfig;
     private final CheckConfig checkConfig;
     private final MessagesConfig messagesConfig;
@@ -41,7 +41,7 @@ public final class WordsBlacklistCheck extends ChatCheck {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public boolean check(final @NotNull ChatData data) {
+    public boolean check(@NotNull ChatData data) {
         boolean enabled = Objects.requireNonNull(checkConfig.getConfigValue(CheckSections.ENABLE_BLACKLIST_CHECK));
         if (!enabled) {
             return false;
@@ -70,7 +70,9 @@ public final class WordsBlacklistCheck extends ChatCheck {
             for (int k = 0; k < wordsSize; k++) {
                 final String str = words.getString(k);
                 for (final String value : ss) {
-                    if (ratcliffObershelp.similarity(value, str) >= factor) {
+                    if (algo.similarity(value, str) >= factor) {
+                        return true;
+                    } else if (algo.similarity(value.toLowerCase(Locale.ROOT), str) >= factor) {
                         return true;
                     }
                 }
